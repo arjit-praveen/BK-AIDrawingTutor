@@ -9,7 +9,12 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        String baseDir = System.getProperty("user.dir");
+
         registry.addResourceHandler("/images/**")
-                .addResourceLocations("file:images/");
+                .addResourceLocations("file:" + baseDir + "/images/");
+
+        registry.addResourceHandler("/submissions/**")
+                .addResourceLocations("file:" + baseDir + "/submissions/");
     }
 }

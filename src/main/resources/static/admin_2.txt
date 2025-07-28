@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input, textarea { margin: 10px 0; display: block; }
+    .step-container { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+    button { padding: 8px 12px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Create a New Drawing</h2>
+
+  <label>Drawing Name:</label>
+  <input type="text" id="drawingName">
+
+  <label>Description:</label>
+  <textarea id="drawingDesc" rows="3" cols="50"></textarea>
+
+  <button onclick="createDrawing()">Create Drawing</button>
+
+  <div id="stepsContainer" style="display:none;">
+    <h3>Enter 4 Steps</h3>
+    <div id="stepForms"></div>
+    <button onclick="submitSteps()">Submit All Steps</button>
+  </div>
+
+  <script>
+    const API_BASE = "http://localhost:8080/api";
+
+    function createDrawing() {
+      const name = document.getElementById("drawingName").value;
+      const description = document.getElementById("drawingDesc").value;
+
+      fetch(`${API_BASE}/drawings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, description })
+      })
+      .then(res => {
+        if (res.ok) {
+          alert("Drawing created. Now add steps.");
+          document.getElementById("stepsContainer").style.display = "block";
+          generateStepForms(name);
+        } else {
+          alert("Failed to create drawing (maybe already exists?)");
+        }
+      });
+    }
+
+    let currentDrawingName = "";
+
+    function generateStepForms(drawingName) {
+      currentDrawingName = drawingName;
+      const stepForms = document.getElementById("stepForms");
+      stepForms.innerHTML = "";
+
+      for (let i = 1; i <= 4; i++) {
+        stepForms.innerHTML += `
+          <div class="step-container">
+            <h4>Step ${i}</h4>
+            <label>Description:</label>
+            <input type="text" id="desc${i}">
+            <label>Upload Image:</label>
+            <input type="file" id="img${i}" accept="image/*">
+          </div>
+        `;
+      }
+    }
+
+    async function submitSteps() {
+      for (let i = 1; i <= 4; i++) {
+        const description = document.getElementById(`desc${i}`).value;
+        const imageFile = document.getElementById(`img${i}`).files[0];
+
+        if (!description || !imageFile) {
+          alert(`Please fill all fields for Step ${i}`);
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("drawingName", currentDrawingName);
+        formData.append("stepNumber", i);
+        formData.append("description", description);
+        formData.append("image", imageFile);
+
+        await fetch(`${API_BASE}/steps`, {
+          method: "POST",
+          body: formData
+        });
+      }
+
+      alert("All steps uploaded!");
+      location.reload();
+    }
+  </script>
+</body>
+</html>

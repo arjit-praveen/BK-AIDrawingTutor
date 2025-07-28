@@ -17,7 +17,7 @@
     label {
       font-weight: 600;
     }
-    input, textarea, button {
+    input, textarea, button, select {
       font-family: inherit;
       padding: 10px;
       font-size: 14px;
@@ -40,7 +40,7 @@
     button:hover {
       background-color: #45a049;
     }
-    .drawing-card {
+    .drawing-card, .submission-card {
       background: white;
       border: 1px solid #ddd;
       border-radius: 12px;
@@ -59,7 +59,7 @@
       list-style: none;
       padding-left: 0;
     }
-    .drawing-card img {
+    .drawing-card img, .submission-card img {
       margin-top: 5px;
       border-radius: 8px;
       border: 1px solid #ddd;
@@ -72,6 +72,11 @@
     .steps-content {
       display: none;
       margin-top: 10px;
+    }
+    .rating {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
   </style>
 </head>
@@ -98,6 +103,10 @@
   <hr>
   <h2>Existing Drawings</h2>
   <div id="drawingList"></div>
+
+  <hr>
+  <h2>User Submissions</h2>
+  <div id="submissionList"></div>
 
   <script>
     const API_BASE = "http://localhost:8080/api";
@@ -198,9 +207,11 @@
 
         container.innerHTML += `
           <div class="drawing-card">
-            <h3>${drawing.name}</h3>
+            <h3 style="display:flex; justify-content:space-between; align-items:center;">
+              ${drawing.name}
+              <button style="width:auto; padding:4px 8px; background:#eee; color:#333;" onclick="toggleSteps('${stepsId}', this)">⬇</button>
+            </h3>
             <p>${drawing.description}</p>
-            <button onclick="toggleSteps('${stepsId}', this)">▶ Show Steps</button>
             <div class="steps-content" id="${stepsId}">
               <ul>${stepHtml}</ul>
             </div>
@@ -215,12 +226,12 @@
 
     function toggleSteps(id, btn) {
       const section = document.getElementById(id);
-      if (section.style.display === "none") {
+      if (section.style.display === "none" || section.style.display === "") {
         section.style.display = "block";
-        btn.textContent = "▼ Hide Steps";
+        btn.textContent = "⬆";
       } else {
         section.style.display = "none";
-        btn.textContent = "▶ Show Steps";
+        btn.textContent = "⬇";
       }
     }
 
@@ -231,8 +242,42 @@
       loadDrawings();
     }
 
-    // Load existing drawings when page loads
+    async function loadSubmissions() {
+      const res = await fetch(`${API_BASE}/submissions`);
+      const subs = await res.json();
+      const container = document.getElementById("submissionList");
+      container.innerHTML = "";
+
+      for (const sub of subs) {
+        container.innerHTML += `
+          <div class="submission-card">
+            <p><strong>Drawing:</strong> ${sub.drawing.name}</p>
+            <img src="${sub.imagePath}" width="150"><br>
+            <div class="rating">
+              <label for="rating-${sub.id}">Rate this:</label>
+              <select id="rating-${sub.id}" onchange="rateSubmission(${sub.id}, this.value)">
+                <option value="">-- Rate --</option>
+                ${[1,2,3,4,5].map(i => `<option value="${i}" ${sub.rating === i ? "selected" : ""}>${i}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    async function rateSubmission(id, rating) {
+      await fetch(`${API_BASE}/submissions/${id}/rate`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rating: parseInt(rating) })
+      });
+      alert("Rating submitted.");
+      loadSubmissions();
+    }
+
+    // Load everything
     loadDrawings();
+    loadSubmissions();
   </script>
 </body>
 </html>

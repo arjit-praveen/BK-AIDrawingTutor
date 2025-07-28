@@ -4,6 +4,7 @@ import com.example.drawing.model.Drawing;
 import com.example.drawing.model.Step;
 import com.example.drawing.service.DrawingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,7 +20,6 @@ public class DrawingController {
     @Autowired
     private DrawingService drawingService;
 
-    // private static final String IMAGE_BASE_PATH = "images/";
     private static final String IMAGE_BASE_PATH = System.getProperty("user.dir") + "/images/";
 
     @PostMapping("/drawings")
@@ -54,7 +54,7 @@ public class DrawingController {
         step.setDrawing(drawing);
         step.setStepNumber(stepNumber);
         step.setDescription(description);
-        step.setImagePath("/images/" + drawingName + "/" + filename); // used by frontend
+        step.setImagePath("/images/" + drawingName + "/" + filename); // frontend path
 
         return drawingService.saveStep(step);
     }
@@ -67,5 +67,31 @@ public class DrawingController {
     @GetMapping("/drawings/{name}/steps")
     public List<Step> getSteps(@PathVariable String name) {
         return drawingService.getStepsByDrawingName(name);
+    }
+
+    // ✅ NEW: Get all drawings
+    @GetMapping("/drawings")
+    public List<Drawing> getAllDrawings() {
+        return drawingService.getAllDrawings();
+    }
+
+    // ✅ NEW: Delete drawing and image folder
+    @DeleteMapping("/drawings/{id}")
+    public ResponseEntity<Void> deleteDrawing(@PathVariable Long id) {
+        Drawing drawing = drawingService.getDrawingById(id);
+        if (drawing == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Delete image folder
+        String folderPath = IMAGE_BASE_PATH + drawing.getName();
+        File folder = new File(folderPath);
+        if (folder.exists()) {
+            for (File file : folder.listFiles()) file.delete();
+            folder.delete();
+        }
+
+        drawingService.deleteDrawingById(id);
+        return ResponseEntity.ok().build();
     }
 }
