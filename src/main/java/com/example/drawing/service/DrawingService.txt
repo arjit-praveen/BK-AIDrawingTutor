@@ -34,4 +34,8 @@ public class DrawingService {
         Drawing drawing = drawingRepo.findByName(name);
         return stepRepo.findByDrawingOrderByStepNumberAsc(drawing);
     }
+
+    public Drawing findByName(String name) {
+        return drawingRepo.findByName(name);
+    }
 }

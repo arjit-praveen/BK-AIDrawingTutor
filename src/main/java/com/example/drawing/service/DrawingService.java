@@ -38,4 +38,19 @@ public class DrawingService {
     public Drawing findByName(String name) {
         return drawingRepo.findByName(name);
     }
+
+    // ✅ NEW: Get all drawings
+    public List<Drawing> getAllDrawings() {
+        return drawingRepo.findAll();
+    }
+
+    // ✅ NEW: Get drawing by ID
+    public Drawing getDrawingById(Long id) {
+        return drawingRepo.findById(id).orElse(null);
+    }
+
+    // ✅ NEW: Delete drawing by ID
+    public void deleteDrawingById(Long id) {
+        drawingRepo.deleteById(id);
+    }
 }
