@@ -8,21 +8,17 @@ public class UserSubmission {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "submission_id")  // Primary Key
     private Long id;
 
-    @Column(name = "username")
     private String username;
 
-    @Column(name = "submission_image_path")
     private String imagePath;
 
-    @Column(name = "submission_rating")
     private int rating;
 
     @ManyToOne
-    @JoinColumn(name = "drawing_id")  // Foreign Key
-    @JsonIgnoreProperties({"description"})
+    @JoinColumn(name = "drawing_id")
+    @JsonIgnoreProperties({"description"}) // Prevent circular reference or excessive nesting
     private Drawing drawing;
 
     // Getters and Setters
