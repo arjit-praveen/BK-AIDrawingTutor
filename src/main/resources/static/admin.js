@@ -1,6 +1,7 @@
 const API_BASE = "http://localhost:8080/api";
 let currentDrawingName = "";
 
+// Create a new drawing
 async function createDrawing() {
   const name = document.getElementById("drawingName").value;
   const description = document.getElementById("drawingDesc").value;
@@ -21,6 +22,7 @@ async function createDrawing() {
   }
 }
 
+// Generate the step form after drawing is created
 function generateStepForms(drawingName) {
   currentDrawingName = drawingName;
   const stepForms = document.getElementById("stepForms");
@@ -28,9 +30,11 @@ function generateStepForms(drawingName) {
   addStepField();
 }
 
+// Add another step input field
 function addStepField() {
   const stepForms = document.getElementById("stepForms");
   const index = stepForms.children.length + 1;
+
   const container = document.createElement("div");
   container.className = "step-container";
   container.innerHTML = `
@@ -45,6 +49,7 @@ function addStepField() {
   stepForms.appendChild(container);
 }
 
+// Submit all steps for the current drawing
 async function submitSteps() {
   const stepForms = document.querySelectorAll(".step-container");
 
@@ -75,6 +80,7 @@ async function submitSteps() {
   loadDrawings();
 }
 
+// Load all existing drawings + their steps
 async function loadDrawings() {
   const res = await fetch(`${API_BASE}/drawings`);
   const drawings = await res.json();
@@ -87,25 +93,25 @@ async function loadDrawings() {
     const steps = await stepsRes.json();
 
     const stepsId = `steps-${drawing.id}`;
-    let stepHtml = steps.map(s => `
-      <li>
+    const stepHtml = steps.map(s => `
+      <div class="step-item">
         <strong>Step ${s.stepNumber}:</strong> ${s.description}<br>
-        <img src="${s.imagePath}" width="100">
-      </li>
+        <img src="${s.imagePath}">
+      </div>
     `).join("");
 
     container.innerHTML += `
       <div class="drawing-card">
-        <h3 style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
           ${drawing.name}
-          <button style="width:auto; padding:4px 8px; background:#eee; color:#333;" onclick="toggleSteps('${stepsId}', this)">⬇</button>
+          <button class="expand-btn" onclick='toggleSteps("${stepsId}", this)'>👇</button>
         </h3>
-        <p>${drawing.description}</p>
+        <p style="margin-top: 0;">${drawing.description}</p>
         <div class="steps-content" id="${stepsId}">
-          <ul>${stepHtml}</ul>
+          <div class="steps-scrollable">${stepHtml}</div>
         </div>
         <div class="button-group">
-          <button onclick="generateStepForms('${drawing.name}'); document.getElementById('stepsContainer').style.display = 'block';">+ Add Steps</button>
+          <button onclick="generateStepForms('${drawing.name}'); document.getElementById('stepsContainer').style.display = 'block';">➕ Add Steps</button>
           <button style="background:#e74c3c;" onclick="deleteDrawing(${drawing.id})">🗑️ Delete</button>
         </div>
       </div>
@@ -113,27 +119,29 @@ async function loadDrawings() {
   }
 }
 
+// Toggle visibility of step section
 function toggleSteps(id, btn) {
   const section = document.getElementById(id);
-  if (section.style.display === "none" || section.style.display === "") {
-    section.style.display = "block";
-    btn.textContent = "⬆";
-  } else {
-    section.style.display = "none";
-    btn.textContent = "⬇";
-  }
+  const isVisible = section.style.display === "block";
+
+  section.style.display = isVisible ? "none" : "block";
+  btn.textContent = isVisible ? "👇" : "☝️";
 }
 
+// Delete drawing
 async function deleteDrawing(id) {
   if (!confirm("Are you sure you want to delete this drawing?")) return;
+
   await fetch(`${API_BASE}/drawings/${id}`, { method: "DELETE" });
   alert("Deleted.");
   loadDrawings();
 }
 
+// Load all user submissions
 async function loadSubmissions() {
   const res = await fetch(`${API_BASE}/submissions`);
   const subs = await res.json();
+
   const container = document.getElementById("submissionList");
   container.innerHTML = "";
 
@@ -141,29 +149,41 @@ async function loadSubmissions() {
     container.innerHTML += `
       <div class="submission-card">
         <p><strong>Drawing:</strong> ${sub.drawing.name}</p>
-        <img src="${sub.imagePath}" width="150"><br>
-        <div class="rating">
-          <label for="rating-${sub.id}">Rate this:</label>
-          <select id="rating-${sub.id}" onchange="rateSubmission(${sub.id}, this.value)">
-            <option value="">-- Rate --</option>
-            ${[1,2,3,4,5].map(i => `<option value="${i}" ${sub.rating === i ? "selected" : ""}>${i}</option>`).join("")}
-          </select>
-        </div>
+        <img src="${sub.imagePath}" alt="User submission" onclick="openModal('${sub.imagePath}')">
+        <label for="rating-${sub.id}">Rating:</label>
+        <select id="rating-${sub.id}" onchange="rateSubmission(${sub.id}, this.value)">
+          <option value="">-- Rate --</option>
+          ${[1,2,3,4,5].map(i => `<option value="${i}" ${sub.rating === i ? "selected" : ""}>${i}</option>`).join("")}
+        </select>
       </div>
     `;
   }
 }
 
+// Rate a submission
 async function rateSubmission(id, rating) {
   await fetch(`${API_BASE}/submissions/${id}/rate`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ rating: parseInt(rating) })
   });
+
   alert("Rating submitted.");
   loadSubmissions();
 }
 
-// Load everything
+// Modal open/close logic
+function openModal(src) {
+  const modal = document.getElementById("imageModal");
+  const modalImg = document.getElementById("modalImage");
+  modal.style.display = "block";
+  modalImg.src = src;
+}
+
+function closeModal() {
+  document.getElementById("imageModal").style.display = "none";
+}
+
+// Initial load
 loadDrawings();
 loadSubmissions();

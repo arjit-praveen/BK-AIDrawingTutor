@@ -1,15 +1,19 @@
+/* ================= INITIAL ================= */
 body {
   font-family: 'Inter', sans-serif;
   background: #f7f9fc;
   margin: 20px;
   color: #333;
 }
+
 h2, h3, h4 {
   color: #2c3e50;
 }
+
 label {
   font-weight: 600;
 }
+
 input, textarea, button, select {
   font-family: inherit;
   padding: 10px;
@@ -20,9 +24,11 @@ input, textarea, button, select {
   width: 100%;
   box-sizing: border-box;
 }
+
 textarea {
   resize: vertical;
 }
+
 button {
   background-color: #4CAF50;
   color: white;
@@ -30,17 +36,45 @@ button {
   cursor: pointer;
   transition: 0.3s;
 }
+
 button:hover {
   background-color: #45a049;
 }
-.drawing-card, .submission-card {
+
+/* ================= Drawing & Submission grid layout =================*/
+#drawingList,
+#submissionList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+/*================= Drawing & Submission cards =================*/
+.drawing-card,
+.submission-card {
   background: white;
   border: 1px solid #ddd;
   border-radius: 12px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  padding: 15px;
-  margin-top: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: auto;
 }
+
+/*================= Shared image styles =================*/
+.drawing-card img,
+.submission-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin: 10px 0;
+}
+
+/*================= Add Step form container =================*/
 .step-container {
   background: #fff;
   border: 1px solid #ddd;
@@ -48,26 +82,109 @@ button:hover {
   padding: 10px;
   margin-bottom: 10px;
 }
+
+/*================= Drawing card list styling =================*/
 .drawing-card ul {
   list-style: none;
   padding-left: 0;
 }
-.drawing-card img, .submission-card img {
-  margin-top: 5px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-}
-.button-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
+
+/*================= Step display section =================*/
 .steps-content {
   display: none;
   margin-top: 10px;
 }
+
+/*================= Rating dropdown =================*/
 .rating {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+/*================= Submission dropdown style =================*/
+.submission-card select {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+}
+
+/*================= Modal for enlarged image =================*/
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  padding-top: 60px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.8);
+}
+
+.modal-content {
+  display: block;
+  margin: auto;
+  max-width: 80%;
+  max-height: 80%;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+/*================= Scrollable step container =================*/
+.steps-scrollable {
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 10px;
+  margin-top: 10px;
+  border-top: 1px solid #eee;
+  scroll-behavior: smooth;
+}
+
+.step-item {
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.step-item strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #2c3e50;
+}
+
+.step-item img {
+  width: 100%;
+  max-width: 80%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+/*================= Collapse toggle button =================*/
+.expand-btn {
+  background-color: #daf0ff;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 15%;
+  max-width: 15%;
+}
+
+.expand-btn:hover {
+  background-color: #daf0ff;
+}
+
+/*================= Add Steps + Delete button stack =================*/
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;          /* reduced gap between Add Steps & Delete */
+  margin-top: 16px;  /* more space between description and Add Steps */
 }
