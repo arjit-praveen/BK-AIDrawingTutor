@@ -10,3 +10,5 @@ Admin frontend
 > Submitted drawings appears on the dropdown on the user frontend. 
 2. Admin can rate user submissions (1-5)
 
+> To maintain consistency, delete images/*.png and submissions/*.png
+
