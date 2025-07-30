@@ -1,27 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Learn to Draw</title>
   <link rel="stylesheet" href="user.css">
 </head>
 <body>
 
+  <!-- Top Rated Section -->
   <h2>Top 5 Rated Submissions</h2>
   <div id="topRated"></div>
 
   <hr>
 
+  <!-- Drawing Steps Section -->
   <h2>Follow Drawing Steps</h2>
-  <label>Select a Drawing:</label>
+  <label for="drawingSelect">Select a Drawing:</label>
   <select id="drawingSelect"></select>
   <button onclick="loadSteps()">Generate Steps</button>
 
   <div id="steps"></div>
 
+  <!-- Submit Drawing Section -->
   <div class="card">
     <h3>Submit Your Drawing</h3>
     <input type="file" id="userImage" accept="image/*">
     <button onclick="submitDrawing()">Submit Drawing</button>
+  </div>
+
+  <!-- Image Modal -->
+  <div id="imageModal" class="modal" onclick="closeModal()">
+    <img class="modal-content" id="modalImage">
   </div>
 
   <script src="user.js"></script>
